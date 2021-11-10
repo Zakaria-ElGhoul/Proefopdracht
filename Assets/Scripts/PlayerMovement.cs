@@ -39,6 +39,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] Transform groundCheck;
     [SerializeField] LayerMask groundMask;
     [SerializeField] float groundDistance = 0.2f;
+
+    [Header("Ground Detection")]
+    [SerializeField] private float wallRunfov;
+    [SerializeField] private float wallRunfovTime;
     public bool isGrounded { get; private set; }
 
     Vector3 moveDirection;
@@ -80,7 +84,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(jumpKey) && isGrounded)
         {
-            Jump();
+            Jump(jumpForce);
         }
 
         slopeMoveDirection = Vector3.ProjectOnPlane(moveDirection, slopeHit.normal);
@@ -94,7 +98,7 @@ public class PlayerMovement : MonoBehaviour
         moveDirection = orientation.forward * verticalMovement + orientation.right * horizontalMovement;
     }
 
-    void Jump()
+    public void Jump(float jumpstrength)
     {
         if (isGrounded)
         {
@@ -108,10 +112,13 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKey(sprintKey) && isGrounded)
         {
             moveSpeed = Mathf.Lerp(moveSpeed, sprintSpeed, acceleration * Time.deltaTime);
+            //camera FOV veranderen
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, wallRunfov, wallRunfovTime * Time.deltaTime);
         }
         else
         {
             moveSpeed = Mathf.Lerp(moveSpeed, walkSpeed, acceleration * Time.deltaTime);
+            //camera FOV veranderen
         }
     }
 
