@@ -24,6 +24,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Keybinds")]
     [SerializeField] KeyCode jumpKey = KeyCode.Space;
     [SerializeField] KeyCode sprintKey = KeyCode.LeftShift;
+    [SerializeField] KeyCode dashKey = KeyCode.E;
 
     [Header("Drag")]
     [SerializeField] float groundDrag = 6f;
@@ -40,9 +41,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] LayerMask groundMask;
     [SerializeField] float groundDistance = 0.2f;
 
-    [Header("Ground Detection")]
+    [Header("Sprint FOV")]
     [SerializeField] private float wallRunfov;
     [SerializeField] private float wallRunfovTime;
+
+    [Header("Dash")]
+    [SerializeField] private float dashForce;
+    [SerializeField] public int dashes;
     public bool isGrounded { get; private set; }
 
     Vector3 moveDirection;
@@ -78,6 +83,11 @@ public class PlayerMovement : MonoBehaviour
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
+        if (isGrounded)
+        {
+            dashes = 1;
+        }
+
         MyInput();
         ControlDrag();
         ControlSpeed();
@@ -85,6 +95,11 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(jumpKey) && isGrounded)
         {
             Jump(jumpForce);
+        }
+
+        if(Input.GetKeyDown(dashKey) && dashes > 0)
+        {
+            Dash();
         }
 
         slopeMoveDirection = Vector3.ProjectOnPlane(moveDirection, slopeHit.normal);
@@ -106,7 +121,20 @@ public class PlayerMovement : MonoBehaviour
             rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         }
     }
-
+    void Dash()
+    {
+        
+        if(isGrounded == false)
+        {
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, wallRunfov, wallRunfovTime * Time.deltaTime);
+            rb.AddForce(orientation.forward * dashForce, ForceMode.Impulse);
+            dashes--;
+        }
+        else if(isGrounded)
+        {
+            moveSpeed = Mathf.Lerp(moveSpeed, walkSpeed, acceleration * Time.deltaTime);
+        }
+    }
     void ControlSpeed()
     {
         if (Input.GetKey(sprintKey) && isGrounded)
