@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -50,6 +51,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] public int dashes;
     public bool isGrounded { get; private set; }
 
+    [Header("Text Assets")]
+    [SerializeField] public TMP_Text dashText;
+
+
     Vector3 moveDirection;
     Vector3 slopeMoveDirection;
 
@@ -91,6 +96,7 @@ public class PlayerMovement : MonoBehaviour
         MyInput();
         ControlDrag();
         ControlSpeed();
+        UpdateUI();
 
         if (Input.GetKeyDown(jumpKey) && isGrounded)
         {
@@ -181,5 +187,10 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.AddForce(moveDirection.normalized * moveSpeed * movementMultiplier * airMultiplier, ForceMode.Acceleration);
         }
+    }
+
+    void UpdateUI()
+    {
+        dashText.text = "Dashes: " + dashes.ToString();
     }
 }
